@@ -166,16 +166,19 @@
         }
     </style>
 </head>
-<body class="min-h-screen pb-20">
+<body class="min-h-screen pb-20 transition-all duration-300">
 
     <!-- Header Navigation -->
-    <nav class="bg-white shadow-md mb-6">
+    <nav class="bg-white shadow-md mb-6 sticky top-0 z-40">
         <div class="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
             <div class="flex items-center gap-2">
                 <div class="bg-yellow-400 text-white font-black px-3 py-1 rounded-md italic">ORIPA</div>
-                <span class="font-bold text-gray-800">ガチャシミュレーター</span>
+                <span class="font-bold text-gray-800 hidden sm:inline">ガチャシミュレーター</span>
             </div>
             <div class="flex gap-2">
+                <button onclick="resetGacha()" class="bg-red-50 hover:bg-red-100 text-red-600 px-4 py-1.5 rounded-full text-sm font-bold transition-colors border border-red-200">
+                    🔄 リセット
+                </button>
                 <button onclick="openConfigModal()" class="bg-gray-100 hover:bg-gray-200 text-gray-600 px-4 py-1.5 rounded-full text-sm font-bold transition-colors">
                     ⚙️ 設定管理
                 </button>
@@ -199,21 +202,21 @@
                         </div>
                     </div>
 
-                    <div class="p-6">
-                        <div class="flex flex-wrap justify-between items-end mb-6">
+                    <div class="p-6 text-center sm:text-left">
+                        <div class="flex flex-wrap justify-between items-end mb-6 gap-4">
                             <div>
                                 <h2 id="displayTitle" class="text-3xl font-black text-gray-800 mb-2">プレミアムオリパ</h2>
-                                <div class="flex items-center gap-1 text-yellow-500 font-black text-4xl">
+                                <div class="flex items-center justify-center sm:justify-start gap-1 text-yellow-500 font-black text-4xl">
                                     <span class="text-2xl italic">💰</span>
                                     <span id="displayCost">1000</span>
                                     <span class="text-sm text-gray-400 font-bold ml-1">/1回</span>
                                 </div>
                             </div>
-                            <div class="text-right">
+                            <div class="text-right mx-auto sm:mx-0">
                                 <div class="text-sm font-bold text-gray-500 mb-2">
                                     残り <span id="currentStock" class="text-green-600">0</span> / <span id="maxStock">0</span> 口
                                 </div>
-                                <div class="progress-bar-bg w-64 shadow-inner">
+                                <div class="progress-bar-bg w-64 shadow-inner mx-auto">
                                     <div id="stockProgressBar" class="progress-bar-fill" style="width: 100%"></div>
                                 </div>
                             </div>
@@ -252,13 +255,22 @@
                 </div>
             </div>
 
-            <!-- Right Side: Prize List and History -->
+            <!-- Right Side: Ad, Prize List and History -->
             <div class="lg:col-span-4 space-y-6">
+                <!-- 広告エリア -->
+                <div class="bg-white rounded-2xl p-4 shadow-md border border-white flex justify-center overflow-hidden">
+                    <div class="text-center">
+                        <a href="https://px.a8.net/svt/ejp?a8mat=4AZQGS+G4HOD6+5PLE+5YZ75" rel="nofollow">
+                        <img border="0" width="300" height="250" alt="" src="https://www24.a8.net/svt/bgt?aid=260328124975&wid=002&eno=01&mid=s00000026645001003000&mc=1"></a>
+                        <img border="0" width="1" height="1" src="https://www17.a8.net/0.gif?a8mat=4AZQGS+G4HOD6+5PLE+5YZ75" alt="">
+                    </div>
+                </div>
+
                 <div class="bg-white/90 rounded-2xl p-6 shadow-md border border-white">
                     <h3 class="font-black text-gray-700 mb-4 flex items-center gap-2 text-base">
                         <span>📋</span> 当選ラインナップ (累計)
                     </h3>
-                    <div id="sidebarPrizeList" class="space-y-2 max-h-[400px] overflow-y-auto pr-2"></div>
+                    <div id="sidebarPrizeList" class="space-y-2 max-h-[400px] overflow-y-auto pr-2 font-medium"></div>
                 </div>
 
                 <div class="bg-black/10 rounded-2xl p-6 border border-white/20 shadow-inner">
@@ -267,14 +279,14 @@
                         <span class="text-[10px] opacity-60 font-normal">タップで詳細確認</span>
                     </h3>
                     <div id="historyList" class="space-y-2 text-sm">
-                        <p class="text-white/40 text-center py-4">履歴はありません</p>
+                        <p class="text-white/40 text-center py-4 italic">履歴はありません</p>
                     </div>
                 </div>
             </div>
         </div>
     </main>
 
-    <!-- 1等演出オーバーレイ -->
+    <!-- 演出用 -->
     <div id="jackpotOverlay" class="hidden jackpot-effect">
         <div class="text-center">
             <div class="text-white font-black text-6xl md:text-8xl italic drop-shadow-[0_10px_10px_rgba(0,0,0,0.5)] special-msg-glow">
@@ -284,7 +296,7 @@
         </div>
     </div>
 
-    <!-- チュートリアルモーダル -->
+    <!-- チュートリアル -->
     <div id="tutorialModal" class="fixed inset-0 modal-overlay z-[100] flex items-center justify-center p-4">
         <div class="bg-white rounded-[40px] w-full max-w-xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
             <div class="p-10 text-center bg-gradient-to-br from-yellow-400 to-orange-500 text-white">
@@ -294,15 +306,15 @@
             <div class="p-8 overflow-y-auto flex-grow space-y-6">
                 <div class="tutorial-step">
                     <h4 class="font-black text-gray-800 text-lg mb-1">1. ガチャをカスタマイズ</h4>
-                    <p class="text-sm text-gray-600 font-medium leading-relaxed">右上の「設定管理」から、ガチャのタイトルやバナー、1回あたりの金額を自由に変更できます。</p>
+                    <p class="text-sm text-gray-600 font-medium leading-relaxed">右上の「設定管理」から、ガチャのタイトルやバナー、金額を自由に変更できます。等級ごとに画像を挿入したりも可能です。</p>
                 </div>
                 <div class="tutorial-step">
-                    <h4 class="font-black text-gray-800 text-lg mb-1">2. 画像や比率を設定</h4>
-                    <p class="text-sm text-gray-600 font-medium leading-relaxed">各等級ごとに画像を挿入したり、総口数や当たりの比率を調整できます。自分が引きたいガチャの条件に近づけてみましょう！</p>
+                    <h4 class="font-black text-gray-800 text-lg mb-1">2. 比率を自分好みに</h4>
+                    <p class="text-sm text-gray-600 font-medium leading-relaxed">総口数や当たりの比率を調整して、自分が引きたいガチャに近づけてシミュレーションしましょう！</p>
                 </div>
                 <div class="tutorial-step">
-                    <h4 class="font-black text-gray-800 text-lg mb-1">3. シミュレーション開始</h4>
-                    <p class="text-sm text-gray-600 font-medium leading-relaxed">準備ができたらガチャを回して、当選結果をチェック！1等が出るときは激アツ演出も...！？</p>
+                    <h4 class="font-black text-gray-800 text-lg mb-1">3. 在庫のリセット</h4>
+                    <p class="text-sm text-gray-600 font-medium leading-relaxed">右上の「🔄 リセット」ボタンから、いつでも在庫を補充して最初からやり直せます。</p>
                 </div>
                 
                 <div class="bg-green-50 p-6 rounded-2xl border-2 border-green-200 text-center">
@@ -317,11 +329,11 @@
         </div>
     </div>
 
-    <!-- Global Config Modal -->
+    <!-- 設定管理モーダル -->
     <div id="configModal" class="fixed inset-0 modal-overlay z-50 hidden flex items-center justify-center p-4">
         <div class="bg-white rounded-3xl w-full max-w-2xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
             <div class="p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50">
-                <h3 class="text-xl font-black text-gray-800">⚙️ ガチャ全体の設定管理</h3>
+                <h3 class="text-xl font-black text-gray-800">⚙️ 設定管理</h3>
                 <button onclick="closeConfigModal()" class="text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
             </div>
             
@@ -376,14 +388,14 @@
         </div>
     </div>
 
-    <!-- Prize Image Edit Modal -->
+    <!-- 画像管理モーダル -->
     <div id="prizeEditModal" class="fixed inset-0 modal-overlay z-[60] hidden flex items-center justify-center p-4">
         <div class="bg-white rounded-[30px] w-full max-w-md p-8 shadow-2xl flex flex-col border-4 border-gray-100">
              <h3 class="text-2xl font-black mb-1 text-gray-800">画像管理</h3>
-             <p class="text-xs text-gray-400 mb-6 font-bold uppercase tracking-widest">Manage images for this prize</p>
+             <p class="text-xs text-gray-400 mb-6 font-bold uppercase tracking-widest italic">Prize visual content</p>
              <div id="prizeImageDropZone" class="drop-zone rounded-3xl p-10 text-center mb-6 bg-gray-50 hover:bg-gray-100 border-2 border-dashed border-gray-200 transition-all">
                  <input type="file" id="prizeImageInput" class="hidden" accept="image/*" multiple>
-                 <span class="text-4xl block mb-2">📸</span>
+                 <span class="text-4xl block mb-2 text-gray-400">📸</span>
                  <p class="text-sm font-bold text-gray-500">この等級用の画像をドロップ</p>
              </div>
              <div id="prizeImageGallery" class="grid grid-cols-4 gap-3 mb-6 overflow-y-auto max-h-48 pr-2"></div>
@@ -391,7 +403,7 @@
         </div>
     </div>
 
-    <!-- Result Modal -->
+    <!-- リザルトモーダル -->
     <div id="resultModal" class="fixed inset-0 modal-overlay z-[70] hidden flex items-center justify-center p-4">
         <div class="bg-white rounded-[40px] w-full max-w-lg overflow-hidden shadow-2xl result-animation flex flex-col max-h-[90vh] border-4 border-white">
             <div id="resultBanner" class="p-10 text-center text-white flex-shrink-0 bg-gradient-to-br from-yellow-400 to-orange-500 relative overflow-hidden">
@@ -399,7 +411,7 @@
                 <h3 id="resultHeader" class="text-4xl font-black mb-1 drop-shadow-lg italic uppercase">CONGRATULATIONS!</h3>
                 <p id="resultSub" class="text-lg font-bold opacity-90 italic"></p>
                 <div id="specialMessageContainer" class="hidden mt-4 bg-white/30 p-3 rounded-2xl border border-white/40 special-msg-glow shadow-lg backdrop-blur-sm">
-                    <p class="text-base font-black text-white italic">おめでとう 本命のガチャも当たるかも？！</p>
+                    <p class="text-base font-black text-white italic text-center">おめでとう 本命のガチャも当たるかも？！</p>
                 </div>
             </div>
             
@@ -446,6 +458,24 @@
             document.getElementById('tutorialModal').classList.add('hidden');
         }
 
+        // --- ガチャのリセット機能 ---
+        function resetGacha() {
+            if (confirm("ガチャの在庫を補充し、履歴をクリアしますか？")) {
+                prizes.forEach(p => {
+                    p.count = p.initialCount || p.count;
+                    p.won = 0;
+                });
+                totalSpentCount = 0;
+                history = [];
+                document.getElementById('lastPrizeName').innerText = "---";
+                updateMainUI();
+                renderHistoryList();
+                
+                document.body.classList.add('brightness-125');
+                setTimeout(() => document.body.classList.remove('brightness-125'), 300);
+            }
+        }
+
         function updateMainUI() {
             document.getElementById('displayTitle').innerText = appConfig.title;
             document.getElementById('displayCost').innerText = appConfig.cost.toLocaleString();
@@ -464,6 +494,7 @@
 
             const currentTotal = prizes.reduce((sum, p) => sum + p.count, 0);
             const initialTotal = prizes.reduce((sum, p) => sum + (p.initialCount || p.count), 0);
+            
             prizes.forEach(p => { if(!p.initialCount) p.initialCount = p.count; });
 
             document.getElementById('currentStock').innerText = currentTotal.toLocaleString();
@@ -487,7 +518,7 @@
                     <div class="flex justify-between items-center mb-1">
                         <div class="flex items-center gap-2">
                             <div class="w-3 h-3 rounded-full shadow-sm" style="background-color: ${p.color}"></div>
-                            <span class="font-bold text-gray-700">${p.name}</span>
+                            <span class="font-bold text-gray-700 text-sm">${p.name}</span>
                         </div>
                         <span class="won-badge shadow-sm">当選: ${p.won || 0}枚</span>
                     </div>
@@ -521,15 +552,15 @@
                 div.className = "p-4 bg-gray-50 rounded-2xl flex flex-wrap gap-4 items-end border border-gray-200 shadow-inner";
                 div.innerHTML = `
                     <div class="flex-1 min-w-[120px]">
-                        <label class="block text-[10px] font-bold text-gray-400 uppercase">等級名</label>
+                        <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-tighter">等級名</label>
                         <input type="text" value="${p.name}" onchange="updatePrizeData(${p.id}, 'name', this.value)" class="w-full bg-transparent border-b-2 border-gray-200 focus:border-blue-400 outline-none font-bold transition-colors">
                     </div>
                     <div class="w-16">
-                        <label class="block text-[10px] font-bold text-gray-400 text-center uppercase">重み</label>
+                        <label class="block text-[10px] font-bold text-gray-400 text-center uppercase tracking-tighter">重み</label>
                         <input type="number" value="${p.weight}" onchange="updatePrizeData(${p.id}, 'weight', parseInt(this.value))" class="w-full bg-transparent border-b-2 border-gray-200 focus:border-blue-400 outline-none font-bold text-center transition-colors">
                     </div>
                     <div class="w-20">
-                        <label class="block text-[10px] font-bold text-gray-400 text-center uppercase">在庫数</label>
+                        <label class="block text-[10px] font-bold text-gray-400 text-center uppercase tracking-tighter">在庫数</label>
                         <input type="number" value="${p.count}" onchange="updatePrizeData(${p.id}, 'count', parseInt(this.value))" class="w-full bg-transparent border-b-2 border-gray-200 focus:border-blue-400 outline-none font-bold text-center transition-colors">
                     </div>
                     <div class="flex gap-2">
@@ -609,8 +640,6 @@
 
         function removePrizeImg(idx) { const prize = prizes.find(p => p.id === currentEditingPrizeId); prize.images.splice(idx, 1); renderPrizeGallery(); }
 
-        // --- Gacha Logic ---
-
         function startDraw(count) {
             const totalStock = prizes.reduce((sum, p) => sum + p.count, 0);
             if (totalStock <= 0) return;
@@ -626,7 +655,6 @@
                     if(winner) results.push(winner);
                 }
                 
-                // 1等が含まれているかチェック
                 const hasFirstPrize = results.some(r => r.name === '1等');
                 
                 totalSpentCount += actualCount;
@@ -634,7 +662,6 @@
                 updateMainUI();
 
                 if (hasFirstPrize) {
-                    // 1等確定演出を実行
                     triggerJackpotAnimation(() => {
                         showResults(results);
                         addHistory(results);
@@ -646,19 +673,16 @@
             }, 600);
         }
 
-        // 激アツ演出ロジック
         function triggerJackpotAnimation(callback) {
             const overlay = document.getElementById('jackpotOverlay');
             const main = document.getElementById('mainContainer');
-            
             overlay.classList.remove('hidden');
             main.classList.add('shaking-screen');
-
             setTimeout(() => {
                 overlay.classList.add('hidden');
                 main.classList.remove('shaking-screen');
                 callback();
-            }, 2500); // 2.5秒間の演出
+            }, 2500);
         }
 
         function drawOne() {
@@ -740,7 +764,7 @@
 
         function addHistory(results) {
             history.unshift(results);
-            if (history.length > 10) history.pop();
+            if (history.length > 15) history.pop();
             renderHistoryList();
         }
 
@@ -748,7 +772,7 @@
             const list = document.getElementById('historyList');
             list.innerHTML = '';
             if (history.length === 0) {
-                list.innerHTML = '<p class="text-white/50 text-center py-4 italic">履歴はありません</p>';
+                list.innerHTML = '<p class="text-white/50 text-center py-4 italic text-xs">履歴はありません</p>';
                 return;
             }
             history.forEach((results, idx) => {
@@ -761,14 +785,14 @@
                     div.innerHTML = `
                         <div class="flex items-center gap-2">
                             <div class="w-2 h-2 rounded-full shadow-inner" style="background-color: ${p.color}"></div>
-                            <span class="font-bold truncate max-w-[120px]">${p.name}</span>
+                            <span class="font-bold truncate max-w-[100px] text-xs">${p.name}</span>
                         </div>
-                        <span class="opacity-50 text-[10px] font-black italic tracking-widest">SINGLE</span>
+                        <span class="opacity-50 text-[8px] font-black italic tracking-widest">SINGLE</span>
                     `;
                 } else {
                     div.innerHTML = `
-                        <span class="font-bold italic">${results.length}連ガチャ結果 ${has1 ? '🏆' : ''}</span>
-                        <span class="opacity-50 text-[10px] font-black tracking-widest">MULTI</span>
+                        <span class="font-bold italic text-xs">${results.length}連結果 ${has1 ? '🏆' : ''}</span>
+                        <span class="opacity-50 text-[8px] font-black tracking-widest">MULTI</span>
                     `;
                 }
                 list.appendChild(div);
