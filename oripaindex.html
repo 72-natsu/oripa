@@ -13,6 +13,8 @@
             background-color: #9cd331; /* オリパ風ライムグリーン */
             background-image: radial-gradient(circle at 20% 20%, rgba(255,255,255,0.2) 0%, transparent 20%),
                               radial-gradient(circle at 80% 80%, rgba(255,255,255,0.2) 0%, transparent 20%);
+            margin: 0;
+            overflow-x: hidden;
         }
 
         .gacha-card {
@@ -89,15 +91,6 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        .history-item {
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-        .history-item:hover {
-            background-color: rgba(255, 255, 255, 0.2);
-            transform: translateX(4px);
-        }
-
         .won-badge {
             background: #fee2e2;
             color: #ef4444;
@@ -113,11 +106,6 @@
         @keyframes textGlow {
             from { text-shadow: 0 0 5px #fff, 0 0 10px #fff, 0 0 15px #ffd700; }
             to { text-shadow: 0 0 10px #fff, 0 0 20px #ffb700, 0 0 30px #ffb700; }
-        }
-        
-        .notes-area {
-            white-space: pre-wrap;
-            line-height: 1.6;
         }
 
         @keyframes rainbowFlash {
@@ -157,284 +145,264 @@
         .shaking-screen {
             animation: screenShake 0.1s infinite;
         }
+
+        .hidden {
+            display: none !important;
+        }
     </style>
 </head>
-<body class="min-h-screen pb-20 transition-all duration-300">
+<body class="min-h-screen pb-20">
 
-    <!-- Header Navigation -->
-    <nav class="bg-white shadow-md mb-6 sticky top-0 z-40">
-        <div class="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
-            <div class="flex items-center gap-2">
-                <div class="bg-yellow-400 text-white font-black px-3 py-1 rounded-md italic">ORIPA</div>
-                <span class="font-bold text-gray-800 hidden sm:inline">ガチャシミュレーター</span>
-            </div>
-            <div class="flex gap-2">
-                <button onclick="resetGacha()" class="bg-red-50 hover:bg-red-100 text-red-600 px-4 py-1.5 rounded-full text-sm font-bold transition-colors border border-red-200">
-                    🔄 リセット
-                </button>
-                <button onclick="openConfigModal()" class="bg-gray-100 hover:bg-gray-200 text-gray-600 px-4 py-1.5 rounded-full text-sm font-bold transition-colors">
-                    ⚙️ 設定管理
-                </button>
-            </div>
-        </div>
-    </nav>
-
-    <main id="mainContainer" class="max-w-6xl mx-auto px-4 transition-transform">
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
-            
-            <!-- Left Side: Gacha Display -->
-            <div class="lg:col-span-8 space-y-6">
-                <div class="gacha-card border-4 border-white shadow-2xl">
-                    <div id="gachaBanner" class="w-full aspect-[21/9] bg-gray-200 relative overflow-hidden flex items-center justify-center border-b-4 border-gray-100">
-                        <img id="bannerImg" src="" class="w-full h-full object-cover hidden">
-                        <div id="bannerPlaceholder" class="text-center p-8">
-                            <p class="text-gray-400 font-bold">ここにバナー画像をドラッグ＆ドロップしてください<br>(設定管理から変更可能)</p>
-                        </div>
-                        <div class="absolute top-4 left-4 bg-red-600 text-white px-3 py-1 rounded text-xs font-bold animate-bounce shadow-lg">
-                            今だけ引ける！アド確定ガチャ
-                        </div>
-                    </div>
-
-                    <div class="p-6 text-center sm:text-left">
-                        <div class="flex flex-wrap justify-between items-end mb-6 gap-4">
-                            <div>
-                                <h2 id="displayTitle" class="text-3xl font-black text-gray-800 mb-2">プレミアムオリパ</h2>
-                                <div class="flex items-center justify-center sm:justify-start gap-1 text-yellow-500 font-black text-4xl">
-                                    <span class="text-2xl italic">💰</span>
-                                    <span id="displayCost">1000</span>
-                                    <span class="text-sm text-gray-400 font-bold ml-1">/1回</span>
-                                </div>
-                            </div>
-                            <div class="text-right mx-auto sm:mx-0">
-                                <div class="text-sm font-bold text-gray-500 mb-2">
-                                    残り <span id="currentStock" class="text-green-600">0</span> / <span id="maxStock">0</span> 口
-                                </div>
-                                <div class="progress-bar-bg w-64 shadow-inner mx-auto">
-                                    <div id="stockProgressBar" class="progress-bar-fill" style="width: 100%"></div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
-                            <button onclick="startDraw(1)" id="btnDraw1" class="btn-yellow py-4 rounded-xl font-black text-lg shadow-lg hover:brightness-110 active:scale-95 transition-all">1回ガチャ</button>
-                            <button onclick="startDraw(10)" id="btnDraw10" class="btn-red py-4 rounded-xl font-black text-lg shadow-lg hover:brightness-110 active:scale-95 transition-all">10連ガチャ</button>
-                            <button onclick="startDraw(100)" id="btnDraw100" class="btn-purple py-4 rounded-xl font-black text-lg shadow-lg hover:brightness-110 active:scale-95 transition-all">100連ガチャ</button>
-                            <button onclick="startDraw('max')" id="btnDrawMax" class="btn-red py-4 rounded-xl font-black text-lg shadow-lg hover:brightness-110 opacity-90 italic active:scale-95 transition-all">全量ガチャ</button>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div class="bg-white/90 p-4 rounded-2xl shadow-sm border border-white text-center">
-                        <div class="text-xs font-bold text-gray-500">累計消費額</div>
-                        <div id="totalSpent" class="text-2xl font-black text-red-600">0円</div>
-                    </div>
-                    <div id="lastWinner" class="md:col-span-2 bg-white/90 p-4 rounded-2xl shadow-sm border border-white flex items-center gap-4">
-                        <div class="w-12 h-12 bg-yellow-400 rounded-full flex items-center justify-center text-white text-2xl shadow-inner">🏆</div>
-                        <div>
-                            <div class="text-xs font-bold text-gray-500">最新の当たり</div>
-                            <div id="lastPrizeName" class="font-black text-gray-800 text-lg">---</div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="bg-white/80 rounded-2xl p-6 border border-white shadow-sm text-center sm:text-left">
-                    <h3 class="font-black text-gray-700 mb-3 flex items-center justify-center sm:justify-start gap-2 text-base">
-                        <span>⚠️</span> 注意事項
-                    </h3>
-                    <div class="notes-area text-sm text-gray-600 font-bold leading-relaxed">
-                        このサイトはシミュレーターです。実際に商品やポイントが付与されるものではありません。また当たりを保証するものでもありません。
-                    </div>
-                </div>
-            </div>
-
-            <!-- Right Side: Prize List and History -->
-            <div class="lg:col-span-4 space-y-6">
-                <div class="bg-white/90 rounded-2xl p-6 shadow-md border border-white">
-                    <h3 class="font-black text-gray-700 mb-4 flex items-center gap-2 text-base">
-                        <span>📋</span> 当選ラインナップ (累計)
-                    </h3>
-                    <div id="sidebarPrizeList" class="space-y-2 max-h-[400px] overflow-y-auto pr-2 font-medium text-gray-800"></div>
-                </div>
-
-                <div class="bg-black/10 rounded-2xl p-6 border border-white/20 shadow-inner">
-                    <h3 class="font-black text-white mb-4 flex justify-between items-center text-base">
-                        <span>最近の当選履歴</span>
-                        <span class="text-[10px] opacity-60 font-normal">タップで詳細確認</span>
-                    </h3>
-                    <div id="historyList" class="space-y-2 text-sm text-white">
-                        <p class="text-white/40 text-center py-4 italic text-xs">履歴はありません</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </main>
-
-    <!-- 1等演出用 -->
-    <div id="jackpotOverlay" class="hidden jackpot-effect">
-        <div class="text-center p-4">
-            <div class="text-white font-black text-6xl md:text-8xl italic drop-shadow-[0_10px_10px_rgba(0,0,0,0.5)] special-msg-glow">
-                1等確定！？
-            </div>
-            <div class="mt-4 text-white font-bold text-2xl animate-pulse">SUPER RARE ARRIVED!!</div>
-        </div>
-    </div>
-
-    <!-- 初回表示画面 (スプラッシュ・広告画面) -->
-    <div id="entryModal" class="fixed inset-0 modal-overlay z-[100] flex items-center justify-center p-4 overflow-y-auto">
-        <div class="bg-white rounded-[40px] w-full max-w-lg overflow-hidden shadow-2xl flex flex-col items-center">
+    <!-- 初回広告画面 (ここだけが最初に表示される) -->
+    <div id="entryScreen" class="fixed inset-0 z-[100] bg-white flex items-center justify-center p-4 overflow-y-auto">
+        <div class="w-full max-w-lg bg-white rounded-[40px] shadow-2xl overflow-hidden flex flex-col items-center border-4 border-gray-50">
             <div class="p-10 text-center bg-gradient-to-br from-yellow-400 to-orange-500 text-white w-full">
-                <h2 class="text-3xl font-black mb-2 italic">PREMIUM SIMULATOR</h2>
+                <h2 class="text-3xl font-black mb-2 italic tracking-tighter">PREMIUM SIMULATOR</h2>
                 <p class="text-sm font-bold opacity-90 italic">Welcome to the Gacha World</p>
             </div>
             
             <div class="p-8 text-center space-y-8 w-full">
-                <!-- 指定広告バナー -->
-                <div class="bg-gray-50 rounded-2xl p-4 shadow-inner border border-gray-100 flex flex-col items-center gap-4">
-                    <div class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Recommended Advertisement</div>
-                    <div class="shadow-lg hover:scale-[1.02] transition-transform">
+                <!-- 指定の広告バナー -->
+                <div class="flex flex-col items-center gap-4">
+                    <div class="text-[10px] font-black text-gray-300 uppercase tracking-widest">Advertisement</div>
+                    <div class="p-2 bg-gray-50 rounded-2xl shadow-inner border border-gray-100 transition-transform hover:scale-[1.02]">
                         <a href="https://px.a8.net/svt/ejp?a8mat=4B1D5I+CF4KUY+5I52+609HT" rel="nofollow">
                         <img border="0" width="300" height="250" alt="" src="https://www21.a8.net/svt/bgt?aid=260404182751&wid=002&eno=01&mid=s00000025679001009000&mc=1"></a>
                         <img border="0" width="1" height="1" src="https://www13.a8.net/0.gif?a8mat=4B1D5I+CF4KUY+5I52+609HT" alt="">
                     </div>
                 </div>
 
-                <div class="px-4 text-center">
-                    <p class="text-green-600 font-black text-sm leading-relaxed mb-4">
+                <div class="px-4">
+                    <p class="text-green-600 font-black text-sm leading-relaxed mb-6">
                         総口、当たりの比率など自分が引きたいガチャに近づけてシミュレーションをしよう！
                     </p>
-                    <div class="text-[10px] text-gray-400 font-bold mb-6">
-                        ※このサイトは実在のガチャを再現するシミュレーターです
-                    </div>
-                    <button onclick="closeEntry()" class="w-full bg-gray-900 text-white py-5 rounded-3xl font-black text-2xl shadow-xl hover:scale-105 active:scale-95 transition-all">ガチャを始める！</button>
+                    <button onclick="startApp()" class="w-full bg-gray-900 text-white py-5 rounded-3xl font-black text-2xl shadow-xl hover:scale-105 active:scale-95 transition-all">ガチャを始める！</button>
                 </div>
             </div>
-            <div class="p-4 bg-gray-100 w-full text-center">
-                <span class="text-[10px] text-gray-400 font-bold">© Premium Gacha Simulator</span>
+            <div class="p-4 bg-gray-50 w-full text-center border-t border-gray-100">
+                <span class="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Premium Simulator Engine</span>
             </div>
         </div>
     </div>
 
-    <!-- 設定管理モーダル -->
-    <div id="configModal" class="fixed inset-0 modal-overlay z-50 hidden flex items-center justify-center p-4 text-gray-800">
+    <!-- メインアプリ画面 (最初は非表示) -->
+    <div id="mainApp" class="hidden">
+        <!-- Header -->
+        <nav class="bg-white shadow-md mb-6 sticky top-0 z-40">
+            <div class="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <div class="bg-yellow-400 text-white font-black px-3 py-1 rounded-md italic text-sm">ORIPA</div>
+                    <span class="font-bold text-gray-800 text-sm sm:text-base">ガチャシミュレーター</span>
+                </div>
+                <div class="flex gap-2">
+                    <button onclick="resetGacha()" class="bg-red-50 text-red-600 px-3 py-1.5 rounded-full text-xs font-bold border border-red-100">🔄 リセット</button>
+                    <button onclick="openConfigModal()" class="bg-gray-100 text-gray-600 px-3 py-1.5 rounded-full text-xs font-bold transition-colors">⚙️ 設定管理</button>
+                </div>
+            </div>
+        </nav>
+
+        <main id="mainContainer" class="max-w-6xl mx-auto px-4">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                <!-- Left: Gacha -->
+                <div class="lg:col-span-8 space-y-6">
+                    <div class="gacha-card border-4 border-white shadow-2xl">
+                        <div id="gachaBanner" class="w-full aspect-[21/9] bg-gray-200 relative overflow-hidden flex items-center justify-center border-b-4 border-gray-100">
+                            <img id="bannerImg" src="" class="w-full h-full object-cover hidden">
+                            <div id="bannerPlaceholder" class="text-center p-8">
+                                <p class="text-gray-400 font-bold text-sm">設定管理からバナー画像を設定してください</p>
+                            </div>
+                        </div>
+
+                        <div class="p-6">
+                            <div class="flex flex-wrap justify-between items-end mb-6 gap-4">
+                                <div>
+                                    <h2 id="displayTitle" class="text-2xl font-black text-gray-800 mb-1">プレミアムオリパ</h2>
+                                    <div class="flex items-center gap-1 text-yellow-500 font-black text-3xl">
+                                        <span class="text-xl">💰</span>
+                                        <span id="displayCost">1000</span>
+                                        <span class="text-xs text-gray-400 font-bold ml-1">/1回</span>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <div class="text-sm font-bold text-gray-500 mb-2">
+                                        残り <span id="currentStock" class="text-green-600">0</span> / <span id="maxStock">0</span> 口
+                                    </div>
+                                    <div class="progress-bar-bg w-48 sm:w-64 shadow-inner">
+                                        <div id="stockProgressBar" class="progress-bar-fill" style="width: 100%"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                                <button onclick="startDraw(1)" class="btn-yellow py-4 rounded-xl font-black text-base shadow-lg hover:brightness-110 active:scale-95 transition-all">1回ガチャ</button>
+                                <button onclick="startDraw(10)" class="btn-red py-4 rounded-xl font-black text-base shadow-lg hover:brightness-110 active:scale-95 transition-all">10連ガチャ</button>
+                                <button onclick="startDraw(100)" class="btn-purple py-4 rounded-xl font-black text-base shadow-lg hover:brightness-110 active:scale-95 transition-all">100連ガチャ</button>
+                                <button onclick="startDraw('max')" class="btn-red py-4 rounded-xl font-black text-base shadow-lg hover:brightness-110 opacity-90 italic active:scale-95 transition-all">全量ガチャ</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div class="bg-white/90 p-4 rounded-2xl shadow-sm border border-white text-center">
+                            <div class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Spent Amount</div>
+                            <div id="totalSpent" class="text-2xl font-black text-red-600">0円</div>
+                        </div>
+                        <div class="md:col-span-2 bg-white/90 p-4 rounded-2xl shadow-sm border border-white flex items-center gap-4">
+                            <div class="w-10 h-10 bg-yellow-400 rounded-full flex items-center justify-center text-white text-xl shadow-inner">🏆</div>
+                            <div>
+                                <div class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Latest Win</div>
+                                <div id="lastPrizeName" class="font-black text-gray-800 text-base">---</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white/80 rounded-2xl p-6 border border-white shadow-sm">
+                        <h3 class="font-black text-gray-700 mb-2 flex items-center gap-2 text-sm">
+                            <span>⚠️</span> 注意事項
+                        </h3>
+                        <div class="text-xs text-gray-500 font-bold leading-relaxed">
+                            このサイトはシミュレーターです。実際に商品やポイントが付与されるものではありません。また当たりを保証するものでもありません。
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right: Side Info -->
+                <div class="lg:col-span-4 space-y-6">
+                    <div class="bg-white/90 rounded-2xl p-6 shadow-md border border-white">
+                        <h3 class="font-black text-gray-700 mb-4 flex items-center gap-2 text-sm uppercase">
+                            <span>📋</span> Lineup
+                        </h3>
+                        <div id="sidebarPrizeList" class="space-y-2 max-h-[400px] overflow-y-auto pr-2 font-medium text-sm"></div>
+                    </div>
+                    <div class="bg-black/10 rounded-2xl p-6 border border-white/10 shadow-inner">
+                        <h3 class="font-black text-white mb-4 flex justify-between items-center text-sm uppercase">
+                            <span>History</span>
+                        </h3>
+                        <div id="historyList" class="space-y-2 text-xs">
+                            <p class="text-white/40 text-center py-4 italic">No history yet</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- 1等演出 -->
+    <div id="jackpotOverlay" class="hidden jackpot-effect">
+        <div class="text-center p-4">
+            <div class="text-white font-black text-5xl md:text-8xl italic drop-shadow-[0_10px_10px_rgba(0,0,0,0.5)] special-msg-glow">1等確定！？</div>
+            <div class="mt-4 text-white font-bold text-xl animate-pulse">SUPER RARE ARRIVED!!</div>
+        </div>
+    </div>
+
+    <!-- 設定モーダル -->
+    <div id="configModal" class="fixed inset-0 modal-overlay z-50 hidden flex items-center justify-center p-4">
         <div class="bg-white rounded-3xl w-full max-w-2xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
             <div class="p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50">
                 <h3 class="text-xl font-black text-gray-800">⚙️ 設定管理</h3>
                 <button onclick="closeConfigModal()" class="text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
             </div>
-            
             <div class="p-6 overflow-y-auto space-y-6 text-gray-700">
                 <div class="grid grid-cols-2 gap-4 text-left">
                     <div>
-                        <label class="block text-xs font-bold text-gray-500 mb-1 uppercase tracking-wider">ガチャタイトル</label>
-                        <input type="text" id="configTitle" class="w-full px-4 py-2 bg-gray-100 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 font-bold border border-transparent">
+                        <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">ガチャタイトル</label>
+                        <input type="text" id="configTitle" class="w-full px-4 py-2 bg-gray-100 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 font-bold border-none">
                     </div>
                     <div>
-                        <label class="block text-xs font-bold text-gray-500 mb-1 uppercase tracking-wider">1回あたりの金額</label>
-                        <input type="number" id="configCost" class="w-full px-4 py-2 bg-gray-100 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 font-bold border border-transparent">
+                        <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">1回あたりの金額</label>
+                        <input type="number" id="configCost" class="w-full px-4 py-2 bg-gray-100 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 font-bold border-none">
                     </div>
                 </div>
-
                 <div class="text-left">
-                    <label class="block text-xs font-bold text-gray-500 mb-1 uppercase tracking-wider">メインバナー画像 (ドラッグ＆ドロップ)</label>
-                    <div id="bannerDropZone" class="drop-zone rounded-2xl p-8 text-center cursor-pointer bg-gray-50 hover:bg-gray-100 border-2 border-dashed border-gray-300">
+                    <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">メインバナー (ドラッグ＆ドロップ)</label>
+                    <div id="bannerDropZone" class="p-8 text-center cursor-pointer bg-gray-50 hover:bg-gray-100 border-2 border-dashed border-gray-200 rounded-2xl transition-all">
                         <input type="file" id="bannerInput" class="hidden" accept="image/*">
                         <div id="bannerDropContent">
                             <span class="text-4xl block mb-2">🖼️</span>
-                            <p class="text-sm text-gray-500 font-bold">画像をここにドロップ</p>
+                            <p class="text-xs text-gray-400 font-bold">画像をここにドロップ</p>
                         </div>
                         <img id="bannerPreview" class="hidden w-full h-32 object-cover rounded-lg shadow-md border-2 border-white mx-auto">
                     </div>
                 </div>
-
-                <hr class="border-gray-100">
-
-                <div class="bg-yellow-50 p-6 rounded-2xl border-2 border-yellow-200 shadow-sm text-left">
-                    <h4 class="font-black text-yellow-800 text-sm mb-3 flex items-center gap-2">
-                        <span>📊</span> 合計在庫数から一括配分
-                    </h4>
-                    <div class="flex flex-col sm:flex-row gap-2">
-                        <input type="number" id="batchTotalStock" placeholder="合計口数を入力 (例: 500)" class="flex-1 px-4 py-2 rounded-lg border-2 border-yellow-300 outline-none focus:ring-2 focus:ring-yellow-500 font-bold">
-                        <button onclick="distributeStockByWeights()" class="bg-yellow-500 hover:bg-yellow-600 text-white px-6 py-2 rounded-lg font-black transition-colors shadow-lg">割り振る</button>
+                <div class="bg-yellow-50 p-4 rounded-2xl border-2 border-yellow-200 text-left">
+                    <h4 class="font-black text-yellow-800 text-sm mb-3">📊 在庫一括配分</h4>
+                    <div class="flex gap-2">
+                        <input type="number" id="batchTotalStock" placeholder="合計口数" class="flex-1 px-4 py-2 rounded-lg border-2 border-yellow-300 outline-none font-bold">
+                        <button onclick="distributeStockByWeights()" class="bg-yellow-500 text-white px-6 py-2 rounded-lg font-black shadow-lg">実行</button>
                     </div>
                 </div>
-
                 <div class="text-left">
                     <div class="flex justify-between items-center mb-4">
-                        <h4 class="font-black text-gray-700">等級ごとの設定</h4>
-                        <button onclick="addPrize()" class="bg-blue-500 text-white px-4 py-1.5 rounded-full text-xs font-bold hover:bg-blue-600 transition-all shadow-md active:scale-95">+ 等級を追加</button>
+                        <h4 class="font-black text-gray-700">等級リスト</h4>
+                        <button onclick="addPrize()" class="bg-blue-500 text-white px-3 py-1.5 rounded-full text-xs font-bold">+ 追加</button>
                     </div>
                     <div id="configPrizeList" class="space-y-3"></div>
                 </div>
             </div>
-
-            <div class="p-6 bg-gray-50 border-t flex gap-3 shadow-inner">
-                <button onclick="saveAllConfig()" class="flex-1 bg-gray-800 text-white font-black py-5 rounded-2xl shadow-xl hover:bg-black transition-all">すべての設定を保存</button>
+            <div class="p-6 bg-gray-50 border-t">
+                <button onclick="saveAllConfig()" class="w-full bg-gray-800 text-white font-black py-4 rounded-2xl shadow-xl hover:bg-black transition-all">設定を保存して反映</button>
             </div>
         </div>
     </div>
 
     <!-- 画像管理モーダル -->
     <div id="prizeEditModal" class="fixed inset-0 modal-overlay z-[60] hidden flex items-center justify-center p-4 text-gray-800">
-        <div class="bg-white rounded-[30px] w-full max-w-md p-8 shadow-2xl flex flex-col border-4 border-gray-100">
-             <h3 class="text-2xl font-black mb-1 text-gray-800">画像管理</h3>
-             <p class="text-xs text-gray-400 mb-6 font-bold uppercase tracking-widest italic">Prize visual content</p>
-             <div id="prizeImageDropZone" class="drop-zone rounded-3xl p-10 text-center mb-6 bg-gray-50 hover:bg-gray-100 border-2 border-dashed border-gray-200 transition-all">
+        <div class="bg-white rounded-[30px] w-full max-w-md p-8 shadow-2xl flex flex-col">
+             <h3 class="text-xl font-black mb-4">等級画像管理</h3>
+             <div id="prizeImageDropZone" class="p-10 text-center bg-gray-50 border-2 border-dashed border-gray-200 rounded-3xl cursor-pointer">
                  <input type="file" id="prizeImageInput" class="hidden" accept="image/*" multiple>
-                 <span class="text-4xl block mb-2 text-gray-400">📸</span>
-                 <p class="text-sm font-bold text-gray-500">この等級用の画像をドロップ</p>
+                 <span class="text-4xl block mb-2">📸</span>
+                 <p class="text-sm font-bold text-gray-400">画像をドロップ</p>
              </div>
-             <div id="prizeImageGallery" class="grid grid-cols-4 gap-3 mb-6 overflow-y-auto max-h-48 pr-2"></div>
-             <button onclick="closePrizeEdit()" class="w-full bg-gray-800 text-white py-4 rounded-2xl font-black shadow-lg hover:bg-black active:scale-95 transition-all">設定完了</button>
+             <div id="prizeImageGallery" class="grid grid-cols-4 gap-3 my-6 overflow-y-auto max-h-48 pr-2"></div>
+             <button onclick="closePrizeEdit()" class="w-full bg-gray-900 text-white py-4 rounded-2xl font-black">完了</button>
         </div>
     </div>
 
     <!-- リザルトモーダル -->
     <div id="resultModal" class="fixed inset-0 modal-overlay z-[70] hidden flex items-center justify-center p-4">
-        <div class="bg-white rounded-[40px] w-full max-w-lg overflow-hidden shadow-2xl result-animation flex flex-col max-h-[90vh] border-4 border-white">
-            <div id="resultBanner" class="p-10 text-center text-white flex-shrink-0 bg-gradient-to-br from-yellow-400 to-orange-500 relative overflow-hidden">
-                <div class="absolute inset-0 opacity-20 pointer-events-none" style="background-image: radial-gradient(circle, white 10%, transparent 10%); background-size: 20px 20px;"></div>
-                <h3 id="resultHeader" class="text-4xl font-black mb-1 drop-shadow-lg italic uppercase">CONGRATULATIONS!</h3>
-                <p id="resultSub" class="text-lg font-bold opacity-90 italic"></p>
-                <div id="specialMessageContainer" class="hidden mt-4 bg-white/30 p-3 rounded-2xl border border-white/40 special-msg-glow shadow-lg backdrop-blur-sm">
-                    <p class="text-base font-black text-white italic text-center leading-relaxed">おめでとう 本命のガチャも当たるかも？！</p>
+        <div class="bg-white rounded-[40px] w-full max-w-lg overflow-hidden shadow-2xl flex flex-col max-h-[90vh] border-4 border-white">
+            <div id="resultBanner" class="p-8 text-center text-white flex-shrink-0 bg-gradient-to-br from-yellow-400 to-orange-500 relative">
+                <h3 id="resultHeader" class="text-3xl font-black mb-1 italic uppercase tracking-tighter">CONGRATULATIONS!</h3>
+                <p id="resultSub" class="text-sm font-bold opacity-80"></p>
+                <div id="specialMessageContainer" class="hidden mt-4 bg-white/30 p-3 rounded-2xl special-msg-glow shadow-md">
+                    <p class="text-sm font-black text-white italic text-center">おめでとう 本命のガチャも当たるかも？！</p>
                 </div>
             </div>
             
-            <div class="p-8 overflow-y-auto flex-grow bg-gray-50">
-                <div class="flex flex-col items-center gap-4 mb-8">
-                    <div class="bg-white rounded-xl p-2 shadow-sm border border-gray-200">
+            <div class="p-6 overflow-y-auto flex-grow bg-gray-50">
+                <!-- 広告エリア 1 & 2 -->
+                <div class="flex flex-col items-center gap-4 mb-6">
+                    <div class="bg-white rounded-xl p-2 shadow-sm border border-gray-100">
                         <a href="https://px.a8.net/svt/ejp?a8mat=4AZQGS+G4HOD6+5PLE+5YZ75" rel="nofollow">
                         <img border="0" width="300" height="250" alt="" src="https://www24.a8.net/svt/bgt?aid=260328124975&wid=002&eno=01&mid=s00000026645001003000&mc=1"></a>
-                        <img border="0" width="1" height="1" src="https://www17.a8.net/0.gif?a8mat=4AZQGS+G4HOD6+5PLE+5YZ75" alt="">
                     </div>
-                    <div class="bg-white rounded-xl p-2 shadow-sm border border-gray-200">
+                    <div class="bg-white rounded-xl p-2 shadow-sm border border-gray-100">
                         <a href="https://px.a8.net/svt/ejp?a8mat=4B1D5I+CF4KUY+5I52+609HT" rel="nofollow">
                         <img border="0" width="300" height="250" alt="" src="https://www21.a8.net/svt/bgt?aid=260404182751&wid=002&eno=01&mid=s00000025679001009000&mc=1"></a>
-                        <img border="0" width="1" height="1" src="https://www13.a8.net/0.gif?a8mat=4B1D5I+CF4KUY+5I52+609HT" alt="">
                     </div>
                 </div>
 
                 <div id="singleResult" class="text-center">
-                    <div class="w-full aspect-square bg-white rounded-3xl flex items-center justify-center mb-6 shadow-xl overflow-hidden border-8 border-white relative group mx-auto max-w-[280px]">
-                        <img id="resultImg" src="" class="w-full h-full object-contain hidden transition-transform group-hover:scale-110">
-                        <div id="resultEmoji" class="text-9xl text-gray-200">🎁</div>
+                    <div class="w-full aspect-square bg-white rounded-3xl flex items-center justify-center mb-6 shadow-xl overflow-hidden border-8 border-white relative group mx-auto max-w-[240px]">
+                        <img id="resultImg" src="" class="w-full h-full object-contain hidden">
+                        <div id="resultEmoji" class="text-9xl text-gray-100">🎁</div>
                     </div>
-                    <h2 id="resultPrizeName" class="text-5xl font-black text-gray-800 italic drop-shadow-sm">1等賞</h2>
+                    <h2 id="resultPrizeName" class="text-4xl font-black text-gray-800 italic">1等賞</h2>
                 </div>
-
                 <div id="multiResult" class="hidden">
-                    <div id="multiResultGrid" class="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4 text-gray-800"></div>
+                    <div id="multiResultGrid" class="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4"></div>
                 </div>
             </div>
 
-            <div class="p-8 bg-white border-t border-gray-100 flex-shrink-0 shadow-inner">
-                <button onclick="closeResult()" class="w-full bg-gray-900 text-white py-6 rounded-3xl font-black text-2xl shadow-xl hover:scale-105 active:translate-y-1 transition-all">確認しました</button>
+            <div class="p-6 bg-white border-t border-gray-100">
+                <button onclick="closeResult()" class="w-full bg-gray-900 text-white py-5 rounded-3xl font-black text-xl shadow-xl hover:scale-105 transition-all">確認しました</button>
             </div>
         </div>
     </div>
 
     <script>
+        // --- State ---
         let appConfig = {
             title: "プレミアム・オリパガチャ",
             cost: 1000,
@@ -453,51 +421,43 @@
         let totalSpentCount = 0;
         let currentEditingPrizeId = null;
 
-        function closeEntry() {
-            document.getElementById('entryModal').classList.add('hidden');
+        // --- App Lifecycle ---
+        function startApp() {
+            document.getElementById('entryScreen').classList.add('hidden');
+            document.getElementById('mainApp').classList.remove('hidden');
+            updateMainUI();
         }
 
         function resetGacha() {
-            if (confirm("ガチャの在庫を補充し、履歴をクリアしますか？")) {
-                prizes.forEach(p => {
-                    p.count = p.initialCount || p.count;
-                    p.won = 0;
-                });
-                totalSpentCount = 0;
-                history = [];
+            if (confirm("在庫を補充し履歴をリセットしますか？")) {
+                prizes.forEach(p => { p.count = p.initialCount || p.count; p.won = 0; });
+                totalSpentCount = 0; history = [];
                 document.getElementById('lastPrizeName').innerText = "---";
                 updateMainUI();
                 renderHistoryList();
-                
-                document.body.classList.add('brightness-125');
-                setTimeout(() => document.body.classList.remove('brightness-125'), 300);
+                document.body.style.opacity = '0.5';
+                setTimeout(() => document.body.style.opacity = '1', 200);
             }
         }
 
+        // --- UI Sync ---
         function updateMainUI() {
             document.getElementById('displayTitle').innerText = appConfig.title;
             document.getElementById('displayCost').innerText = appConfig.cost.toLocaleString();
             
-            const bannerPreview = document.getElementById('bannerPreview');
-            const bannerPlaceholder = document.getElementById('bannerDropContent');
-
             if (appConfig.banner) {
-                document.getElementById('bannerImg').src = appConfig.banner;
-                document.getElementById('bannerImg').classList.remove('hidden');
+                const img = document.getElementById('bannerImg');
+                img.src = appConfig.banner;
+                img.classList.remove('hidden');
                 document.getElementById('bannerPlaceholder').classList.add('hidden');
-                bannerPreview.src = appConfig.banner;
-                bannerPreview.classList.remove('hidden');
-                bannerPlaceholder.classList.add('hidden');
             }
 
             const currentTotal = prizes.reduce((sum, p) => sum + p.count, 0);
             const initialTotal = prizes.reduce((sum, p) => sum + (p.initialCount || p.count), 0);
-            
             prizes.forEach(p => { if(!p.initialCount) p.initialCount = p.count; });
 
             document.getElementById('currentStock').innerText = currentTotal.toLocaleString();
             document.getElementById('maxStock').innerText = initialTotal.toLocaleString();
-            
             const percentage = initialTotal > 0 ? (currentTotal / initialTotal) * 100 : 0;
             document.getElementById('stockProgressBar').style.width = percentage + '%';
 
@@ -511,18 +471,18 @@
             prizes.forEach(p => {
                 const isOut = p.count <= 0;
                 const div = document.createElement('div');
-                div.className = `flex flex-col p-3 bg-white rounded-xl border border-gray-100 shadow-sm ${isOut ? 'opacity-50 grayscale' : ''}`;
+                div.className = `flex flex-col p-3 bg-white/80 rounded-xl border border-gray-100 shadow-sm ${isOut ? 'opacity-50 grayscale' : ''}`;
                 div.innerHTML = `
                     <div class="flex justify-between items-center mb-1">
                         <div class="flex items-center gap-2">
-                            <div class="w-3 h-3 rounded-full shadow-sm" style="background-color: ${p.color}"></div>
-                            <span class="font-bold text-gray-700 text-sm">${p.name}</span>
+                            <div class="w-3 h-3 rounded-full" style="background-color: ${p.color}"></div>
+                            <span class="font-bold text-gray-700">${p.name}</span>
                         </div>
-                        <span class="won-badge shadow-sm">当選: ${p.won || 0}枚</span>
+                        <span class="won-badge">当選: ${p.won || 0}</span>
                     </div>
-                    <div class="flex justify-between items-center text-[10px]">
-                        <span class="text-gray-400 font-bold italic">残り ${p.count}口</span>
-                        <span class="text-gray-300 font-bold uppercase text-[8px]">Weight ${p.weight}</span>
+                    <div class="flex justify-between items-center text-[9px] font-black text-gray-400 italic">
+                        <span>STOCK ${p.count}</span>
+                        <span class="opacity-30">WEIGHT ${p.weight}</span>
                     </div>
                 `;
                 list.appendChild(div);
@@ -533,13 +493,13 @@
             document.getElementById('totalSpent').innerText = (totalSpentCount * appConfig.cost).toLocaleString() + '円';
         }
 
+        // --- Modals ---
         function openConfigModal() {
             document.getElementById('configTitle').value = appConfig.title;
             document.getElementById('configCost').value = appConfig.cost;
             renderConfigPrizes();
             document.getElementById('configModal').classList.remove('hidden');
         }
-
         function closeConfigModal() { document.getElementById('configModal').classList.add('hidden'); }
 
         function renderConfigPrizes() {
@@ -550,21 +510,21 @@
                 div.className = "p-4 bg-gray-50 rounded-2xl flex flex-wrap gap-4 items-end border border-gray-200 shadow-inner";
                 div.innerHTML = `
                     <div class="flex-1 min-w-[120px]">
-                        <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-tighter">等級名</label>
-                        <input type="text" value="${p.name}" onchange="updatePrizeData(${p.id}, 'name', this.value)" class="w-full bg-transparent border-b-2 border-gray-200 focus:border-blue-400 outline-none font-bold transition-colors">
+                        <label class="block text-[9px] font-black text-gray-400">等級名</label>
+                        <input type="text" value="${p.name}" onchange="updatePrizeData(${p.id}, 'name', this.value)" class="w-full bg-transparent border-b border-gray-300 outline-none font-bold text-sm">
                     </div>
-                    <div class="w-16">
-                        <label class="block text-[10px] font-bold text-gray-400 text-center uppercase tracking-tighter">重み</label>
-                        <input type="number" value="${p.weight}" onchange="updatePrizeData(${p.id}, 'weight', parseInt(this.value))" class="w-full bg-transparent border-b-2 border-gray-200 focus:border-blue-400 outline-none font-bold text-center transition-colors">
+                    <div class="w-12 text-center">
+                        <label class="block text-[9px] font-black text-gray-400">重み</label>
+                        <input type="number" value="${p.weight}" onchange="updatePrizeData(${p.id}, 'weight', parseInt(this.value))" class="w-full bg-transparent border-b border-gray-300 outline-none font-bold text-center text-sm">
                     </div>
-                    <div class="w-20">
-                        <label class="block text-[10px] font-bold text-gray-400 text-center uppercase tracking-tighter">在庫数</label>
-                        <input type="number" value="${p.count}" onchange="updatePrizeData(${p.id}, 'count', parseInt(this.value))" class="w-full bg-transparent border-b-2 border-gray-200 focus:border-blue-400 outline-none font-bold text-center transition-colors">
+                    <div class="w-16 text-center">
+                        <label class="block text-[9px] font-black text-gray-400">在庫</label>
+                        <input type="number" value="${p.count}" onchange="updatePrizeData(${p.id}, 'count', parseInt(this.value))" class="w-full bg-transparent border-b border-gray-300 outline-none font-bold text-center text-sm">
                     </div>
                     <div class="flex gap-2">
-                        <button onclick="duplicatePrize(${p.id})" class="p-2 bg-white rounded-lg shadow-sm border border-gray-200 text-lg hover:bg-blue-50 transition-colors" title="複製して追加">📄</button>
-                        <button onclick="openPrizeEdit(${p.id})" class="p-2 bg-white rounded-lg shadow-sm border border-gray-200 text-lg hover:bg-yellow-50 transition-colors" title="画像管理">🖼️</button>
-                        <button onclick="removePrize(${p.id})" class="p-2 text-red-300 hover:text-red-600 transition-colors">🗑️</button>
+                        <button onclick="duplicatePrize(${p.id})" class="p-2 bg-white rounded-lg shadow-sm border border-gray-100 text-sm">📄</button>
+                        <button onclick="openPrizeEdit(${p.id})" class="p-2 bg-white rounded-lg shadow-sm border border-gray-100 text-sm">🖼️</button>
+                        <button onclick="removePrize(${p.id})" class="p-2 text-red-300">🗑️</button>
                     </div>
                 `;
                 list.appendChild(div);
@@ -580,26 +540,20 @@
             const p = prizes.find(p => p.id === id);
             if (p) {
                 const copy = JSON.parse(JSON.stringify(p));
-                copy.id = Date.now() + Math.floor(Math.random() * 1000);
-                copy.won = 0;
-                prizes.push(copy);
-                renderConfigPrizes();
+                copy.id = Date.now() + Math.floor(Math.random() * 1000); copy.won = 0;
+                prizes.push(copy); renderConfigPrizes();
             }
         }
 
         function distributeStockByWeights() {
             const totalStock = parseInt(document.getElementById('batchTotalStock').value);
-            if (isNaN(totalStock) || totalStock < 0) return;
+            if (!totalStock || totalStock <= 0) return;
             const totalWeight = prizes.reduce((sum, p) => sum + p.weight, 0);
             if (totalWeight <= 0) return;
-            let allocatedSum = 0;
-            prizes.forEach((p, index) => {
-                if (index === prizes.length - 1) {
-                    p.count = Math.max(0, totalStock - allocatedSum);
-                } else {
-                    p.count = Math.round((p.weight / totalWeight) * totalStock);
-                    allocatedSum += p.count;
-                }
+            let current = 0;
+            prizes.forEach((p, idx) => {
+                if (idx === prizes.length - 1) { p.count = Math.max(0, totalStock - current); }
+                else { p.count = Math.round((p.weight / totalWeight) * totalStock); current += p.count; }
                 p.initialCount = p.count;
             });
             renderConfigPrizes();
@@ -615,7 +569,7 @@
 
         function saveAllConfig() {
             appConfig.title = document.getElementById('configTitle').value;
-            appConfig.cost = parseInt(document.getElementById('configCost').value) || 0;
+            appConfig.cost = parseInt(document.getElementById('configCost').value) || 1000;
             updateMainUI();
             closeConfigModal();
         }
@@ -629,15 +583,16 @@
             gallery.innerHTML = '';
             prize.images.forEach((img, idx) => {
                 const div = document.createElement('div');
-                div.className = "relative aspect-square rounded-xl overflow-hidden border shadow-sm bg-gray-100 group";
+                div.className = "relative aspect-square rounded-xl overflow-hidden border bg-gray-100 group";
                 div.innerHTML = `<img src="${img}" class="w-full h-full object-cover">
-                                <button onclick="removePrizeImg(${idx})" class="absolute top-0 right-0 bg-red-600 text-white p-1 text-[10px] shadow-md opacity-0 group-hover:opacity-100 transition-opacity">×</button>`;
+                                <button onclick="removePrizeImg(${idx})" class="absolute top-0 right-0 bg-red-600 text-white p-1 text-[8px] opacity-0 group-hover:opacity-100 transition-opacity">×</button>`;
                 gallery.appendChild(div);
             });
         }
 
         function removePrizeImg(idx) { const prize = prizes.find(p => p.id === currentEditingPrizeId); prize.images.splice(idx, 1); renderPrizeGallery(); }
 
+        // --- Gacha Core ---
         function startDraw(count) {
             const totalStock = prizes.reduce((sum, p) => sum + p.count, 0);
             if (totalStock <= 0) return;
@@ -659,27 +614,23 @@
                 updateMainUI();
 
                 if (hasFirstPrize) {
-                    triggerJackpotAnimation(() => {
-                        showResults(results);
-                        addHistory(results);
-                    });
+                    triggerJackpotAnimation(() => { showResults(results); addHistory(results); });
                 } else {
-                    showResults(results);
-                    addHistory(results);
+                    showResults(results); addHistory(results);
                 }
             }, 600);
         }
 
         function triggerJackpotAnimation(callback) {
             const overlay = document.getElementById('jackpotOverlay');
-            const main = document.getElementById('mainContainer');
+            const main = document.getElementById('mainApp');
             overlay.classList.remove('hidden');
             main.classList.add('shaking-screen');
             setTimeout(() => {
                 overlay.classList.add('hidden');
                 main.classList.remove('shaking-screen');
                 callback();
-            }, 2500);
+            }, 2000);
         }
 
         function drawOne() {
@@ -689,8 +640,7 @@
             let random = Math.random() * totalWeight;
             for (const p of available) {
                 if (random < p.weight) {
-                    p.count--;
-                    p.won = (p.won || 0) + 1;
+                    p.count--; p.won = (p.won || 0) + 1;
                     const img = p.images.length > 0 ? p.images[Math.floor(Math.random() * p.images.length)] : null;
                     return { ...p, selectedImg: img };
                 }
@@ -703,53 +653,36 @@
             const singleView = document.getElementById('singleResult');
             const multiView = document.getElementById('multiResult');
             const modal = document.getElementById('resultModal');
-            const banner = document.getElementById('resultBanner');
             const sub = document.getElementById('resultSub');
-            const header = document.getElementById('resultHeader');
             const specialMsg = document.getElementById('specialMessageContainer');
 
-            sub.innerText = `${results.length}枚の結果を表示中`;
-
+            sub.innerText = `${results.length}枚の結果`;
             const hasFirstPrize = results.some(r => r.name === '1等');
-            if (hasFirstPrize) { specialMsg.classList.remove('hidden'); } else { specialMsg.classList.add('hidden'); }
+            if (hasFirstPrize) specialMsg.classList.remove('hidden'); else specialMsg.classList.add('hidden');
 
             if (results.length === 1) {
                 const p = results[0];
-                header.innerText = isReview ? "RESULT REVIEW" : "CONGRATULATIONS!";
-                banner.style.background = `linear-gradient(135deg, ${p.color}, #1a1a1a)`;
-                singleView.classList.remove('hidden');
-                multiView.classList.add('hidden');
+                singleView.classList.remove('hidden'); multiView.classList.add('hidden');
                 document.getElementById('resultPrizeName').innerText = p.name;
                 document.getElementById('resultPrizeName').style.color = p.color;
                 const img = document.getElementById('resultImg');
                 const emoji = document.getElementById('resultEmoji');
-                if (p.selectedImg) {
-                    img.src = p.selectedImg;
-                    img.classList.remove('hidden');
-                    emoji.classList.add('hidden');
-                } else {
-                    img.classList.add('hidden');
-                    emoji.classList.remove('hidden');
-                }
+                if (p.selectedImg) { img.src = p.selectedImg; img.classList.remove('hidden'); emoji.classList.add('hidden'); }
+                else { img.classList.add('hidden'); emoji.classList.remove('hidden'); }
                 if (!isReview) document.getElementById('lastPrizeName').innerText = p.name;
             } else {
-                header.innerText = isReview ? "REVIEW RESULTS" : "GACHA RESULTS";
-                banner.style.background = `linear-gradient(135deg, #334155, #0f172a)`;
-                singleView.classList.add('hidden');
-                multiView.classList.remove('hidden');
+                singleView.classList.add('hidden'); multiView.classList.remove('hidden');
                 const grid = document.getElementById('multiResultGrid');
                 grid.innerHTML = '';
                 results.forEach((p, idx) => {
                     const div = document.createElement('div');
-                    div.className = "result-item bg-white p-2 rounded-2xl border-2 border-gray-100 flex flex-col items-center gap-1 shadow-md";
+                    div.className = "result-item bg-white p-2 rounded-xl border border-gray-100 flex flex-col items-center gap-1 shadow-sm";
                     div.style.animationDelay = (idx * 0.02) + 's';
                     div.innerHTML = `
-                        <div class="w-full aspect-square bg-gray-50 rounded-xl flex items-center justify-center overflow-hidden border-2 border-white shadow-inner">
-                            ${p.selectedImg ? `<img src="${p.selectedImg}" class="w-full h-full object-cover">` : `<span class="text-xl text-gray-400 font-bold">${p.name[0]}</span>`}
+                        <div class="w-full aspect-square bg-gray-50 rounded-lg flex items-center justify-center overflow-hidden border shadow-inner">
+                            ${p.selectedImg ? `<img src="${p.selectedImg}" class="w-full h-full object-cover">` : `<span class="text-xl text-gray-200 font-bold">${p.name[0]}</span>`}
                         </div>
-                        <div class="font-black text-[8px] px-2 py-0.5 rounded-full text-white shadow-sm italic truncate w-full text-center" style="background-color: ${p.color}">
-                            ${p.name}
-                        </div>
+                        <div class="font-black text-[8px] px-2 py-0.5 rounded-full text-white shadow-sm italic truncate w-full text-center" style="background-color: ${p.color}">${p.name}</div>
                     `;
                     grid.appendChild(div);
                 });
@@ -759,43 +692,27 @@
 
         function closeResult() { document.getElementById('resultModal').classList.add('hidden'); }
 
-        function addHistory(results) {
-            history.unshift(results);
-            if (history.length > 15) history.pop();
-            renderHistoryList();
-        }
+        function addHistory(results) { history.unshift(results); if (history.length > 15) history.pop(); renderHistoryList(); }
 
         function renderHistoryList() {
             const list = document.getElementById('historyList');
             list.innerHTML = '';
-            if (history.length === 0) {
-                list.innerHTML = '<p class="text-white/50 text-center py-4 italic text-xs">履歴はありません</p>';
-                return;
-            }
+            if (history.length === 0) { list.innerHTML = '<p class="text-white/40 text-center py-4 italic text-xs">No history</p>'; return; }
             history.forEach((results, idx) => {
                 const div = document.createElement('div');
                 const has1 = results.some(r => r.name === '1等');
-                div.className = `history-item p-3 rounded-xl border border-white/10 flex justify-between items-center shadow-sm active:scale-95 transition-all ${has1 ? 'bg-yellow-500/30 border-yellow-500/40' : 'bg-white/5'}`;
+                div.className = `p-3 rounded-xl text-white flex justify-between items-center shadow-sm active:scale-95 transition-all cursor-pointer ${has1 ? 'bg-yellow-500/40 border border-yellow-500/50' : 'bg-white/10 border border-white/10'}`;
                 div.onclick = () => showResults(results, true);
                 if (results.length === 1) {
-                    const p = results[0];
-                    div.innerHTML = `
-                        <div class="flex items-center gap-2 text-gray-800">
-                            <div class="w-2 h-2 rounded-full shadow-inner" style="background-color: ${p.color}"></div>
-                            <span class="font-bold truncate max-w-[100px] text-xs text-white">${p.name}</span>
-                        </div>
-                        <span class="opacity-50 text-[8px] font-black italic tracking-widest uppercase text-white">SINGLE</span>
-                    `;
+                    div.innerHTML = `<div class="flex items-center gap-2"><div class="w-2 h-2 rounded-full" style="background-color: ${results[0].color}"></div><span class="font-bold text-xs">${results[0].name}</span></div><span class="opacity-50 text-[9px] italic">SINGLE</span>`;
                 } else {
-                    div.innerHTML = `
-                        <span class="font-bold italic text-xs text-white">${results.length}連結果 ${has1 ? '🏆' : ''}</span>
-                        <span class="opacity-50 text-[8px] font-black tracking-widest uppercase text-white">MULTI</span>
-                    `;
+                    div.innerHTML = `<span class="font-bold text-xs italic">${results.length}連ガチャ ${has1 ? '🏆' : ''}</span><span class="opacity-50 text-[9px] italic uppercase">Multi</span>`;
                 }
                 list.appendChild(div);
             });
         }
 
+        // --- Drag & Drop ---
         function setupDragDrop(zoneId, inputId, callback) {
             const zone = document.getElementById(zoneId);
             const input = document.getElementById(inputId);
@@ -821,7 +738,9 @@
             });
         });
 
+        // Init
         updateMainUI();
+
     </script>
 </body>
 </html>
