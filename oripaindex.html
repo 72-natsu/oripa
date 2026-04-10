@@ -126,7 +126,6 @@
             margin-bottom: 1.5rem;
         }
 
-        /* 1等確定演出用のスタイル */
         @keyframes rainbowFlash {
             0% { background-color: rgba(255, 0, 0, 0.5); }
             20% { background-color: rgba(255, 255, 0, 0.5); }
@@ -255,9 +254,9 @@
                 </div>
             </div>
 
-            <!-- Right Side: Ad, Prize List and History -->
+            <!-- Right Side: Ads, Prize List and History -->
             <div class="lg:col-span-4 space-y-6">
-                <!-- 広告エリア -->
+                <!-- 広告エリア 1 -->
                 <div class="bg-white rounded-2xl p-4 shadow-md border border-white flex justify-center overflow-hidden">
                     <div class="text-center">
                         <a href="https://px.a8.net/svt/ejp?a8mat=4AZQGS+G4HOD6+5PLE+5YZ75" rel="nofollow">
@@ -266,11 +265,20 @@
                     </div>
                 </div>
 
+                <!-- 広告エリア 2 (NEW) -->
+                <div class="bg-white rounded-2xl p-4 shadow-md border border-white flex justify-center overflow-hidden">
+                    <div class="text-center">
+                        <a href="https://px.a8.net/svt/ejp?a8mat=4B1D5I+CF4KUY+5I52+609HT" rel="nofollow">
+                        <img border="0" width="300" height="250" alt="" src="https://www21.a8.net/svt/bgt?aid=260404182751&wid=002&eno=01&mid=s00000025679001009000&mc=1"></a>
+                        <img border="0" width="1" height="1" src="https://www13.a8.net/0.gif?a8mat=4B1D5I+CF4KUY+5I52+609HT" alt="">
+                    </div>
+                </div>
+
                 <div class="bg-white/90 rounded-2xl p-6 shadow-md border border-white">
                     <h3 class="font-black text-gray-700 mb-4 flex items-center gap-2 text-base">
                         <span>📋</span> 当選ラインナップ (累計)
                     </h3>
-                    <div id="sidebarPrizeList" class="space-y-2 max-h-[400px] overflow-y-auto pr-2 font-medium"></div>
+                    <div id="sidebarPrizeList" class="space-y-2 max-h-[400px] overflow-y-auto pr-2 font-medium text-gray-800"></div>
                 </div>
 
                 <div class="bg-black/10 rounded-2xl p-6 border border-white/20 shadow-inner">
@@ -279,7 +287,7 @@
                         <span class="text-[10px] opacity-60 font-normal">タップで詳細確認</span>
                     </h3>
                     <div id="historyList" class="space-y-2 text-sm">
-                        <p class="text-white/40 text-center py-4 italic">履歴はありません</p>
+                        <p class="text-white/40 text-center py-4 italic text-xs">履歴はありません</p>
                     </div>
                 </div>
             </div>
@@ -303,22 +311,22 @@
                 <h2 class="text-4xl font-black mb-2 italic">WELCOME!</h2>
                 <p class="text-lg font-bold opacity-90 italic">ガチャシミュレーターへようこそ</p>
             </div>
-            <div class="p-8 overflow-y-auto flex-grow space-y-6">
+            <div class="p-8 overflow-y-auto flex-grow space-y-6 text-gray-700">
                 <div class="tutorial-step">
                     <h4 class="font-black text-gray-800 text-lg mb-1">1. ガチャをカスタマイズ</h4>
-                    <p class="text-sm text-gray-600 font-medium leading-relaxed">右上の「設定管理」から、ガチャのタイトルやバナー、金額を自由に変更できます。等級ごとに画像を挿入したりも可能です。</p>
+                    <p class="text-sm font-medium leading-relaxed">右上の「設定管理」から、ガチャのタイトルやバナー、金額を自由に変更できます。等級ごとに画像を挿入したりも可能です。</p>
                 </div>
                 <div class="tutorial-step">
                     <h4 class="font-black text-gray-800 text-lg mb-1">2. 比率を自分好みに</h4>
-                    <p class="text-sm text-gray-600 font-medium leading-relaxed">総口数や当たりの比率を調整して、自分が引きたいガチャに近づけてシミュレーションしましょう！</p>
+                    <p class="text-sm font-medium leading-relaxed">総口数や当たりの比率を調整して、自分が引きたいガチャに近づけてシミュレーションしましょう！</p>
                 </div>
                 <div class="tutorial-step">
                     <h4 class="font-black text-gray-800 text-lg mb-1">3. 在庫のリセット</h4>
-                    <p class="text-sm text-gray-600 font-medium leading-relaxed">右上の「🔄 リセット」ボタンから、いつでも在庫を補充して最初からやり直せます。</p>
+                    <p class="text-sm font-medium leading-relaxed">右上の「🔄 リセット」ボタンから、いつでも在庫を補充して最初からやり直せます。</p>
                 </div>
                 
                 <div class="bg-green-50 p-6 rounded-2xl border-2 border-green-200 text-center">
-                    <p class="font-black text-green-700 text-lg">
+                    <p class="font-black text-green-700 text-lg leading-relaxed">
                         総口、当たりの比率など自分が引きたいガチャに近づけてシミュレーションをしよう！
                     </p>
                 </div>
@@ -330,7 +338,7 @@
     </div>
 
     <!-- 設定管理モーダル -->
-    <div id="configModal" class="fixed inset-0 modal-overlay z-50 hidden flex items-center justify-center p-4">
+    <div id="configModal" class="fixed inset-0 modal-overlay z-50 hidden flex items-center justify-center p-4 text-gray-800">
         <div class="bg-white rounded-3xl w-full max-w-2xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
             <div class="p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50">
                 <h3 class="text-xl font-black text-gray-800">⚙️ 設定管理</h3>
@@ -357,17 +365,17 @@
                             <span class="text-4xl block mb-2">🖼️</span>
                             <p class="text-sm text-gray-500 font-bold">画像をここにドロップ</p>
                         </div>
-                        <img id="bannerPreview" class="hidden w-full h-32 object-cover rounded-lg shadow-md border-2 border-white">
+                        <img id="bannerPreview" class="hidden w-full h-32 object-cover rounded-lg shadow-md border-2 border-white mx-auto">
                     </div>
                 </div>
 
                 <hr class="border-gray-100">
 
                 <div class="bg-yellow-50 p-6 rounded-2xl border-2 border-yellow-200 shadow-sm">
-                    <h4 class="font-black text-yellow-800 text-sm mb-3 flex items-center gap-2">
+                    <h4 class="font-black text-yellow-800 text-sm mb-3 flex items-center gap-2 text-center sm:text-left">
                         <span>📊</span> 合計在庫数から一括配分
                     </h4>
-                    <div class="flex gap-2">
+                    <div class="flex flex-col sm:flex-row gap-2">
                         <input type="number" id="batchTotalStock" placeholder="合計口数を入力 (例: 500)" class="flex-1 px-4 py-2 rounded-lg border-2 border-yellow-300 outline-none focus:ring-2 focus:ring-yellow-500 font-bold">
                         <button onclick="distributeStockByWeights()" class="bg-yellow-500 hover:bg-yellow-600 text-white px-6 py-2 rounded-lg font-black transition-colors shadow-lg">割り振る</button>
                     </div>
@@ -389,7 +397,7 @@
     </div>
 
     <!-- 画像管理モーダル -->
-    <div id="prizeEditModal" class="fixed inset-0 modal-overlay z-[60] hidden flex items-center justify-center p-4">
+    <div id="prizeEditModal" class="fixed inset-0 modal-overlay z-[60] hidden flex items-center justify-center p-4 text-gray-800">
         <div class="bg-white rounded-[30px] w-full max-w-md p-8 shadow-2xl flex flex-col border-4 border-gray-100">
              <h3 class="text-2xl font-black mb-1 text-gray-800">画像管理</h3>
              <p class="text-xs text-gray-400 mb-6 font-bold uppercase tracking-widest italic">Prize visual content</p>
@@ -411,13 +419,13 @@
                 <h3 id="resultHeader" class="text-4xl font-black mb-1 drop-shadow-lg italic uppercase">CONGRATULATIONS!</h3>
                 <p id="resultSub" class="text-lg font-bold opacity-90 italic"></p>
                 <div id="specialMessageContainer" class="hidden mt-4 bg-white/30 p-3 rounded-2xl border border-white/40 special-msg-glow shadow-lg backdrop-blur-sm">
-                    <p class="text-base font-black text-white italic text-center">おめでとう 本命のガチャも当たるかも？！</p>
+                    <p class="text-base font-black text-white italic text-center leading-relaxed">おめでとう 本命のガチャも当たるかも？！</p>
                 </div>
             </div>
             
             <div class="p-8 overflow-y-auto flex-grow bg-gray-50">
                 <div id="singleResult" class="text-center">
-                    <div class="w-full aspect-square bg-white rounded-3xl flex items-center justify-center mb-6 shadow-xl overflow-hidden border-8 border-white relative group">
+                    <div class="w-full aspect-square bg-white rounded-3xl flex items-center justify-center mb-6 shadow-xl overflow-hidden border-8 border-white relative group mx-auto max-w-[280px]">
                         <img id="resultImg" src="" class="w-full h-full object-contain hidden transition-transform group-hover:scale-110">
                         <div id="resultEmoji" class="text-9xl">🎁</div>
                     </div>
@@ -458,7 +466,6 @@
             document.getElementById('tutorialModal').classList.add('hidden');
         }
 
-        // --- ガチャのリセット機能 ---
         function resetGacha() {
             if (confirm("ガチャの在庫を補充し、履歴をクリアしますか？")) {
                 prizes.forEach(p => {
@@ -783,16 +790,16 @@
                 if (results.length === 1) {
                     const p = results[0];
                     div.innerHTML = `
-                        <div class="flex items-center gap-2">
+                        <div class="flex items-center gap-2 text-gray-800">
                             <div class="w-2 h-2 rounded-full shadow-inner" style="background-color: ${p.color}"></div>
-                            <span class="font-bold truncate max-w-[100px] text-xs">${p.name}</span>
+                            <span class="font-bold truncate max-w-[100px] text-xs text-white">${p.name}</span>
                         </div>
-                        <span class="opacity-50 text-[8px] font-black italic tracking-widest">SINGLE</span>
+                        <span class="opacity-50 text-[8px] font-black italic tracking-widest text-white">SINGLE</span>
                     `;
                 } else {
                     div.innerHTML = `
-                        <span class="font-bold italic text-xs">${results.length}連結果 ${has1 ? '🏆' : ''}</span>
-                        <span class="opacity-50 text-[8px] font-black tracking-widest">MULTI</span>
+                        <span class="font-bold italic text-xs text-white">${results.length}連結果 ${has1 ? '🏆' : ''}</span>
+                        <span class="opacity-50 text-[8px] font-black tracking-widest text-white">MULTI</span>
                     `;
                 }
                 list.appendChild(div);
